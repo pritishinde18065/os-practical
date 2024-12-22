@@ -1,0 +1,72 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+int main() {
+int n, timeQuantum;
+// Input the number of processes
+cout << "Enter the number of processes: ";
+cin >> n;
+// Declare arrays to store process details
+int processes[n], burstTime[n], arrivalTime[n], remainingBurstTime[n];
+int waitingTime[n], turnaroundTime[n], completionTime[n];
+int totalWaitingTime = 0, totalTurnaroundTime = 0;
+// Input arrival and burst times for each process
+for (int i = 0; i < n; i++) {
+processes[i] = i + 1; // Process ID (P1, P2, ...)
+cout << "Enter arrival time for Process " << processes[i] << ": ";
+cin >> arrivalTime[i];
+cout << "Enter burst time for Process " << processes[i] << ": ";
+cin >> burstTime[i];
+remainingBurstTime[i] = burstTime[i]; // Initialize remaining burst times
+}
+// Input the time quantum
+cout << "Enter the time quantum: ";
+cin >> timeQuantum;
+int currentTime = 0, completed = 0;
+// Round-Robin Scheduling
+cout << "\nGantt Chart:\n";
+while (completed < n) {
+bool doneInThisCycle = false;
+// Go through all processes in round-robin fashion
+for (int i = 0; i < n; i++) {
+if (remainingBurstTime[i] > 0 && arrivalTime[i] <= currentTime) {
+doneInThisCycle = true;
+int execTime = (remainingBurstTime[i] > timeQuantum) ? timeQuantum :
+remainingBurstTime[i];
+remainingBurstTime[i] -= execTime;
+currentTime += execTime;
+// Print process execution in the Gantt chart
+cout << "| P" << processes[i] << " ";
+// If process is nished
+if (remainingBurstTime[i] == 0) {
+completed++;
+completionTime[i] = currentTime;
+turnaroundTime[i] = completionTime[i] - arrivalTime[i];
+waitingTime[i] = turnaroundTime[i] - burstTime[i];
+}
+}
+}
+// If no process could execute in this cycle, increment time
+if (!doneInThisCycle) {
+currentTime++;
+}
+}
+cout << "|\n"; // Close the Gantt chart
+// Display process details and calculate averages
+cout << "\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n";
+for (int i = 0; i < n; i++) {
+cout << "P" << processes[i] << "\t"
+<< arrivalTime[i] << "\t\t"
+<< burstTime[i] << "\t\t"
+<< waitingTime[i] << "\t\t"
+<< turnaroundTime[i] << "\n";
+totalWaitingTime += waitingTime[i];
+totalTurnaroundTime += turnaroundTime[i];
+}
+// Calculate and display averages
+oat avgWaitTime = (oat)totalWaitingTime / n;
+oat avgTurnaroundTime = (oat)totalTurnaroundTime / n;
+cout << "\nAverage Waiting Time: " << xed << setprecision(2) << avgWaitTime << "\n";
+cout << "Average Turnaround Time: " << xed << setprecision(2) << avgTurnaroundTime << "\n";
+return 0;
+}
