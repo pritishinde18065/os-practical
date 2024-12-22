@@ -1,0 +1,60 @@
+#include <iostream>
+using namespace std;
+void FIFO(int pages[], int n, int capacity) {
+int frames[capacity]; // Array to represent the frames
+int front = 0; // Points to the oldest page in the frame
+int count = 0; // Keeps track of the number of pages in the frame
+int page_faults = 0;
+// Initialize frames to -1 (empty)
+for (int i = 0; i < capacity; i++) {
+frames[i] = -1;
+}
+cout << "Page Replacement Process:" << endl;
+// Process each page
+for (int i = 0; i < n; i++) {
+bool page_found = false;
+// Check if the page is already in the frame
+for (int j = 0; j < count; j++) {
+if (frames[j] == pages[i]) {
+page_found = true;
+break;
+}
+}
+// If the page is not in the frame, replace the oldest page
+if (!page_found) {
+page_faults++;
+// Replace the page at the front position
+frames[front] = pages[i];
+front = (front + 1) % capacity; // Move the front pointer circularly
+// Update the count of lled frames
+if (count < capacity) {
+count++;
+}
+}
+// Print the current state of the frames
+cout << "Page " << pages[i] << ": ";
+for (int j = 0; j < count; j++) {
+cout << frames[j] << " ";
+}
+cout << endl;
+}
+cout << "\nTotal Page Faults: " << page_faults << endl;
+}
+int main() {
+int n, capacity;
+// Input the number of pages
+cout << "Enter the number of pages: ";
+cin >> n;
+int pages[n]; // Array to store the pages
+// Input the page sequence
+cout << "Enter the page sequence: ";
+for (int i = 0; i < n; i++) {
+cin >> pages[i];
+}
+// Input the capacity of the frames
+cout << "Enter the number of frames: ";
+cin >> capacity;
+// Call the FIFO function
+FIFO(pages, n, capacity);
+return 0;
+}
