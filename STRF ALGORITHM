@@ -59,10 +59,8 @@ time++; // Move to the next time unit
 // Step 5: Calculate waiting time and turnaround time
 int totalWaitingTime = 0, totalTurnaroundTime = 0;
 for (int i = 0; i < n; i++) {
-turnaroundTime[i] = completionTime[i] - arrivalTime[i]; // Turnaround time = Completion
-time - Arrival time
-waitingTime[i] = turnaroundTime[i] - burstTime[i]; // Waiting time = Turnaround time - Burst
-time
+turnaroundTime[i] = completionTime[i] - arrivalTime[i]; // Turnaround time = Completion time - Arrival time
+waitingTime[i] = turnaroundTime[i] - burstTime[i]; // Waiting time = Turnaround time - Burst time
 totalWaitingTime += waitingTime[i];
 totalTurnaroundTime += turnaroundTime[i];
 }
