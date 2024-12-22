@@ -1,0 +1,73 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+int main() {
+int n;
+cout << "Enter the number of processes: ";
+cin >> n;
+// Declare arrays to store process details: arrival time, burst time, and priority
+int processes[n], burstTime[n], arrivalTime[n], priority[n];
+int waitingTime[n], turnaroundTime[n], completionTime[n];
+int totalWaitingTime = 0, totalTurnaroundTime = 0;
+// Input process details: arrival time, burst time, and priority in one line for each process
+for (int i = 0; i < n; i++) {
+processes[i] = i + 1; // Process ID (P1, P2, ...)
+cout << "Enter arrival time, burst time, and priority for Process " << processes[i] << "
+(separated by spaces): ";
+cin >> arrivalTime[i] >> burstTime[i] >> priority[i];
+}
+// Sort processes based on priority (if two processes have same priority, use arrival time as
+tie-breaker)
+for (int i = 0; i < n - 1; i++) {
+for (int j = 0; j < n - i - 1; j++) {
+if (priority[j] > priority[j + 1] || (priority[j] == priority[j + 1] && arrivalTime[j] > arrivalTime[j +
+1])) {
+swap(priority[j], priority[j + 1]);
+swap(processes[j], processes[j + 1]);
+swap(arrivalTime[j], arrivalTime[j + 1]);
+swap(burstTime[j], burstTime[j + 1]);
+}
+}
+}
+// Calculate completion time, waiting time, and turnaround time
+int currentTime = 0;
+for (int i = 0; i < n; i++) {
+if (arrivalTime[i] > currentTime) {
+currentTime = arrivalTime[i]; // If a process arrives later, wait for it
+}
+completionTime[i] = currentTime + burstTime[i];
+turnaroundTime[i] = completionTime[i] - arrivalTime[i];
+waitingTime[i] = turnaroundTime[i] - burstTime[i];
+currentTime = completionTime[i]; // Update current time after process completion
+}
+// Print Gantt chart
+cout << "\nGantt Chart:\n";
+currentTime = 0;
+for (int i = 0; i < n; i++) {
+cout << "| P" << processes[i] << " ";
+}
+cout << "|\n";
+for (int i = 0; i < n; i++) {
+cout << currentTime << " ";
+currentTime += burstTime[i];
+}
+cout << currentTime << "\n"; // Final completion time
+// Display process details and calculate averages
+cout << "\nProcess\tArrival Time\tBurst Time\tPriority\tWaiting Time\tTurnaround Time\n";
+for (int i = 0; i < n; i++) {
+cout << "P" << processes[i] << "\t\t"
+<< arrivalTime[i] << "\t\t\t\t"
+<< burstTime[i] << "\t\t\t"
+<< priority[i] << "\t\t\t"
+<< waitingTime[i] << "\t\t\t\t"
+<< turnaroundTime[i] << "\n";
+totalWaitingTime += waitingTime[i];
+totalTurnaroundTime += turnaroundTime[i];
+}
+// Calculate and display averages
+oat avgWaitTime = (oat)totalWaitingTime / n;
+oat avgTurnaroundTime = (oat)totalTurnaroundTime / n;
+cout << "\nAverage Waiting Time: " << xed << setprecision(2) << avgWaitTime << "\n";
+cout << "Average Turnaround Time: " << xed << setprecision(2) << avgTurnaroundTime << "\n";
+return 0;
+}
