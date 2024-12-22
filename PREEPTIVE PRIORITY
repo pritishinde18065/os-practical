@@ -1,0 +1,90 @@
+#include <iostream>
+#include <climits>
+using namespace std;
+struct Process {
+int pid, arrival_time, burst_time, priority, remaining_time;
+int waiting_time, turnaround_time;
+};
+int main() {
+int n;
+// Input number of processes
+cout << "Enter the number of processes: ";
+cin >> n;
+Process processes[n];
+// Input process details
+for (int i = 0; i < n; i++) {
+processes[i].pid = i + 1;
+cout << "Enter arrival time for Process " << i + 1 << ": ";
+cin >> processes[i].arrival_time;
+cout << "Enter burst time for Process " << i + 1 << ": ";
+cin >> processes[i].burst_time;
+cout << "Enter priority for Process " << i + 1 << ": ";
+cin >> processes[i].priority;
+processes[i].remaining_time = processes[i].burst_time;
+processes[i].waiting_time = 0;
+processes[i].turnaround_time = 0;
+}
+int total_time = 0;
+int completed = 0;
+int gantt_chart[100]; // Store Gantt chart
+int gantt_time = 0;
+// Gantt Chart display header
+cout << "\nGantt Chart:\n";
+cout << "0 ";
+// Preemptive Priority Scheduling Logic
+while (completed < n) {
+int min_priority = INT_MAX;
+int selected_process = -1;
+// Find the process with the highest priority that hasn't nished
+for (int i = 0; i < n; i++) {
+if (processes[i].arrival_time <= total_time && processes[i].remaining_time > 0 &&
+processes[i].priority < min_priority) {
+min_priority = processes[i].priority;
+selected_process = i;
+}
+}
+// If no process is ready to execute, increment time and continue
+if (selected_process == -1) {
+total_time++;
+continue;
+}
+// Execute the selected process for one unit of time
+processes[selected_process].remaining_time--;
+gantt_chart[gantt_time++] = processes[selected_process].pid;
+total_time++;
+// If process is completed, update its times
+if (processes[selected_process].remaining_time == 0) {
+processes[selected_process].turnaround_time = total_time -
+processes[selected_process].arrival_time;
+processes[selected_process].waiting_time =
+processes[selected_process].turnaround_time - processes[selected_process].burst_time;
+completed++;
+}
+}
+// Print Gantt chart
+for (int i = 0; i < gantt_time; i++) {
+cout << "| P" << gantt_chart[i] << " ";
+}
+cout << "| " << total_time << endl;
+// Display process details in a table-like format
+cout << "\nProcess\tArrival Time\tBurst Time\tPriority\tWaiting Time\tTurnaround Time\n";
+for (int i = 0; i < n; i++) {
+cout << "P" << processes[i].pid << "\t"
+<< processes[i].arrival_time << "\t\t"
+<< processes[i].burst_time << "\t\t"
+<< processes[i].priority << "\t\t"
+<< processes[i].waiting_time << "\t\t\t"
+<< processes[i].turnaround_time << endl;
+}
+// Calculate and display averages
+int total_waiting_time = 0, total_turnaround_time = 0;
+for (int i = 0; i < n; i++) {
+total_waiting_time += processes[i].waiting_time;
+total_turnaround_time += processes[i].turnaround_time;
+}
+oat avg_waiting_time = (oat)total_waiting_time / n;
+oat avg_turnaround_time = (oat)total_turnaround_time / n;
+cout << "\nAverage Waiting Time: " << avg_waiting_time << endl;
+cout << "Average Turnaround Time: " << avg_turnaround_time << endl;
+return 0;
+}
