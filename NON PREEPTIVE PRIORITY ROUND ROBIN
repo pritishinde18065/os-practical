@@ -1,0 +1,100 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+// Function to calculate waiting and turnaround times for Round-Robin scheduling
+void calculateRoundRobinTimes(int processes[], int n, int arrivalTime[], int burstTime[], int
+timeQuantum) {
+int remainingBurstTime[n];
+int waitingTime[n], turnaroundTime[n], completionTime[n];
+int totalWaitingTime = 0, totalTurnaroundTime = 0;
+// Copy burst times to remaining burst time
+for (int i = 0; i < n; i++) {
+remainingBurstTime[i] = burstTime[i];
+}
+int currentTime = 0, completed = 0;
+while (completed < n) {
+bool doneInThisCycle = false;
+for (int i = 0; i < n; i++) {
+if (remainingBurstTime[i] > 0 && arrivalTime[i] <= currentTime) {
+doneInThisCycle = true;
+int execTime = (remainingBurstTime[i] > timeQuantum) ? timeQuantum :
+remainingBurstTime[i];
+remainingBurstTime[i] -= execTime;
+currentTime += execTime;
+// If process is nished
+if (remainingBurstTime[i] == 0) {
+completed++;
+completionTime[i] = currentTime;
+turnaroundTime[i] = completionTime[i] - arrivalTime[i];
+waitingTime[i] = turnaroundTime[i] - burstTime[i];
+}
+}
+}
+// If no process could execute in this cycle, increment time
+if (!doneInThisCycle) {
+currentTime++;
+}
+}
+// Print process details and calculate averages
+cout << "\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n";
+for (int i = 0; i < n; i++) {
+cout << "P" << processes[i] << "\t"
+<< arrivalTime[i] << "\t\t"
+<< burstTime[i] << "\t\t"
+<< waitingTime[i] << "\t\t"
+<< turnaroundTime[i] << "\n";
+totalWaitingTime += waitingTime[i];
+totalTurnaroundTime += turnaroundTime[i];
+}
+// Calculate and display averages
+oat avgWaitTime = (oat)totalWaitingTime / n;
+oat avgTurnaroundTime = (oat)totalTurnaroundTime / n;
+cout << "\nAverage Waiting Time: " << xed << setprecision(2) << avgWaitTime << "\n";
+cout << "Average Turnaround Time: " << xed << setprecision(2) << avgTurnaroundTime << "\n";
+}
+// Function to display Gantt chart for the Round-Robin scheduling
+void displayRoundRobinGanttChart(int processes[], int n, int arrivalTime[], int burstTime[], int
+timeQuantum) {
+int remainingBurstTime[n];
+// Copy burst times to remaining burst time
+for (int i = 0; i < n; i++) {
+remainingBurstTime[i] = burstTime[i];
+}
+int currentTime = 0;
+cout << "\nGantt Chart:\n";
+while (true) {
+bool done = true;
+for (int i = 0; i < n; i++) {
+if (remainingBurstTime[i] > 0 && arrivalTime[i] <= currentTime) {
+done = false;
+int execTime = (remainingBurstTime[i] > timeQuantum) ? timeQuantum :
+remainingBurstTime[i];
+remainingBurstTime[i] -= execTime;
+currentTime += execTime;
+cout << "| P" << processes[i] << " ";
+}
+}
+if (done) break; // If all processes are completed, exit the loop
+}
+cout << "|\n";
+}
+int main() {
+int n, timeQuantum;
+// Input the number of processes
+cout << "Enter the number of processes: ";
+cin >> n;
+int processes[n], arrivalTime[n], burstTime[n], priority[n];
+// Input arrival time, burst time, and priority for each process
+cout << "Enter arrival time, burst time, and priority for each process in one line (arrival time,
+burst time, priority):\n";
+for (int i = 0; i < n; i++) {
+processes[i] = i + 1; // Process ID (P1, P2, ...)
+cin >> arrivalTime[i] >> burstTime[i] >> priority[i];
+}
+// Input the time quantum
+cout << "Enter the time quantum for Round Robin scheduling: ";
+cin >> timeQuantum;
+// Display Gantt Chart for Round-Robin Scheduling
+displayRoundRobinGanttChart(processes, n, arrivalTime, burstTime, timeQuantum);
+calculateRoundRobinTimes(processes, n, arrivalTime, burstTime, timeQuantum);
+return 0; }
