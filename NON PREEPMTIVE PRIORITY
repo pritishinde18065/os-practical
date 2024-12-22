@@ -12,12 +12,10 @@ int totalWaitingTime = 0, totalTurnaroundTime = 0;
 // Input process details: arrival time, burst time, and priority in one line for each process
 for (int i = 0; i < n; i++) {
 processes[i] = i + 1; // Process ID (P1, P2, ...)
-cout << "Enter arrival time, burst time, and priority for Process " << processes[i] << "
-(separated by spaces): ";
+cout << "Enter arrival time, burst time, and priority for Process " << processes[i] << "(separated by spaces): ";
 cin >> arrivalTime[i] >> burstTime[i] >> priority[i];
 }
-// Sort processes based on priority (if two processes have same priority, use arrival time as
-tie-breaker)
+// Sort processes based on priority (if two processes have same priority, use arrival time as tie-breaker)
 for (int i = 0; i < n - 1; i++) {
 for (int j = 0; j < n - i - 1; j++) {
 if (priority[j] > priority[j + 1] || (priority[j] == priority[j + 1] && arrivalTime[j] > arrivalTime[j +
@@ -65,9 +63,9 @@ totalWaitingTime += waitingTime[i];
 totalTurnaroundTime += turnaroundTime[i];
 }
 // Calculate and display averages
-oat avgWaitTime = (oat)totalWaitingTime / n;
-oat avgTurnaroundTime = (oat)totalTurnaroundTime / n;
-cout << "\nAverage Waiting Time: " << xed << setprecision(2) << avgWaitTime << "\n";
-cout << "Average Turnaround Time: " << xed << setprecision(2) << avgTurnaroundTime << "\n";
+float avgWaitTime = (float)totalWaitingTime / n;
+float avgTurnaroundTime = (float)totalTurnaroundTime / n;
+cout << "\nAverage Waiting Time: " <<fixed << setprecision(2) << avgWaitTime << "\n";
+cout << "Average Turnaround Time: " <<fixed << setprecision(2) << avgTurnaroundTime << "\n";
 return 0;
 }
