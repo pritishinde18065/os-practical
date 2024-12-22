@@ -1,0 +1,70 @@
+#include <iostream>
+using namespace std;
+void LRU(int pages[], int n, int capacity) {
+int frames[capacity]; // Array to represent the frames
+int last_used[capacity]; // Array to track the last use of each frame
+int time = 0; // Simulated clock to track the time
+int page_faults = 0;
+// Initialize frames and last_used arrays manually
+for (int i = 0; i < capacity; i++) {
+frames[i] = -1; // Set all frames to -1 (empty)
+last_used[i] = -1; // Set last used times to -1
+}
+// Process each page in the sequence
+for (int i = 0; i < n; i++) {
+int current_page = pages[i];
+bool page_found = false;
+// Check if the page is already in frames
+for (int j = 0; j < capacity; j++) {
+if (frames[j] == current_page) {
+page_found = true;
+last_used[j] = time; // Update the last use time
+break;
+}
+}
+// If the page is not in frames, handle page fault
+if (!page_found) {
+page_faults++;
+// Find the least recently used frame
+int lru_index = 0;
+for (int j = 1; j < capacity; j++) {
+if (frames[j] == -1 || last_used[j] < last_used[lru_index]) {
+lru_index = j;
+}
+}
+// Replace the least recently used page
+frames[lru_index] = current_page;
+last_used[lru_index] = time; // Update the last use time
+}
+// Increment the simulated clock
+time++;
+// Print the current state of the frames
+cout << "Page " << current_page << ": ";
+for (int j = 0; j < capacity; j++) {
+if (frames[j] != -1) {
+cout << frames[j] << " ";
+}
+}
+cout << endl;
+}
+// Print the total number of page faults
+cout << "\nTotal Page Faults: " << page_faults << endl;
+}
+int main() {
+int n, capacity;
+// Input the number of pages
+cout << "Enter the number of pages: ";
+cin >> n;
+int pages[n];
+// Input the page sequence
+cout << "Enter the page sequence: ";
+for (int i = 0; i < n; i++) {
+cin >> pages[i];
+}
+// Input the number of frames
+cout << "Enter the number of frames: ";
+cin >> capacity;
+// Call LRU function
+LRU(pages, n, capacity);
+return 0;
+}
