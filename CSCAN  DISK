@@ -1,0 +1,95 @@
+#include <iostream>
+#include <algorithm> // for sort()
+#include <cmath> // for abs()
+using namespace std;
+void C_SCAN(int requests[], int n, int start, int disk_size, string direction) {
+int total_seek_time = 0;
+int current_position = start;
+// Sort the requests in ascending order
+sort(requests, requests + n);
+cout << "Initial head position: " << start << endl;
+cout << "Head movement: ";
+if (direction == "right") {
+// Move to the right side (requests >= current_position)
+for (int i = 0; i < n; i++) {
+if (requests[i] >= current_position) {
+total_seek_time += abs(requests[i] - current_position);
+cout << current_position << " -> " << requests[i] << " ";
+current_position = requests[i];
+}
+}
+// Move to the end of the disk and wrap around to the start
+if (current_position != disk_size - 1) {
+total_seek_time += abs(disk_size - 1 - current_position);
+cout << current_position << " -> " << disk_size - 1 << " ";
+current_position = 0; // Wrap to the start of the disk
+cout << disk_size - 1 << " -> 0 ";
+} else {
+current_position = 0; // Directly wrap to the start
+cout << disk_size - 1 << " -> 0 ";
+}
+// Continue to process remaining requests on the left side
+for (int i = 0; i < n; i++) {
+if (requests[i] < start) {
+total_seek_time += abs(current_position - requests[i]);
+cout << current_position << " -> " << requests[i] << " ";
+current_position = requests[i];
+}
+}
+} else if (direction == "left") {
+// Move to the left side (requests <= current_position)
+for (int i = n - 1; i >= 0; i--) {
+if (requests[i] <= current_position) {
+total_seek_time += abs(requests[i] - current_position);
+cout << current_position << " -> " << requests[i] << " ";
+current_position = requests[i];
+}
+}
+// Move to the start of the disk and wrap around to the end
+if (current_position != 0) {
+total_seek_time += abs(current_position - 0);
+cout << current_position << " -> " << 0 << " ";
+current_position = disk_size - 1; // Wrap to the end of the disk
+cout << "0 -> " << disk_size - 1 << " ";
+} else {
+current_position = disk_size - 1; // Directly wrap to the end
+cout << "0 -> " << disk_size - 1 << " ";
+}
+// Continue to process remaining requests on the right side
+for (int i = n - 1; i >= 0; i--) {
+if (requests[i] > start) {
+total_seek_time += abs(current_position - requests[i]);
+cout << current_position << " -> " << requests[i] << " ";
+current_position = requests[i];
+}
+}
+}
+cout << endl;
+cout << "Total seek time: " << total_seek_time << endl;
+cout << "Average seek time: " << (oat)total_seek_time / n << endl;
+}
+int main() {
+int n, start, disk_size;
+string direction;
+// Input number of requests
+cout << "Enter number of disk requests: ";
+cin >> n;
+int requests[n]; // Array to store disk requests
+// Input disk requests
+cout << "Enter disk requests: ";
+for (int i = 0; i < n; i++) {
+cin >> requests[i];
+}
+// Input starting head position
+cout << "Enter initial position of the disk arm: ";
+cin >> start;
+// Input disk size
+cout << "Enter total disk size (max position): ";
+cin >> disk_size;
+// Input initial direction of head movement
+cout << "Enter initial direction (left/right): ";
+cin >> direction;
+// Call C-SCAN function
+C_SCAN(requests, n, start, disk_size, direction);
+return 0;
+}
