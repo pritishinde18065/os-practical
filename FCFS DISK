@@ -1,0 +1,38 @@
+#include <iostream>
+#include <cmath> // for abs() function
+using namespace std;
+void FCFS(int requests[], int n, int start) {
+int total_seek_time = 0;
+int current_position = start;
+cout << "Initial disk head position: " << start << endl;
+// Process each request and calculate seek time
+for (int i = 0; i < n; i++) {
+int seek_time = abs(requests[i] - current_position);
+total_seek_time += seek_time;
+// Print how the head moves
+cout << "Move head from " << current_position << " to " << requests[i] << " (Seek time: " <<
+seek_time << ")" << endl;
+current_position = requests[i]; // Update current position
+}
+// Print the total seek time and average seek time
+cout << "Total seek time: " << total_seek_time << endl;
+cout << "Average seek time: " << (oat)total_seek_time / n << endl;
+}
+int main() {
+int n, start;
+// Input the number of disk requests
+cout << "Enter number of disk requests: ";
+cin >> n;
+int requests[n];
+// Input disk requests
+cout << "Enter disk requests: ";
+for (int i = 0; i < n; i++) {
+cin >> requests[i];
+}
+// Input the initial position of the disk head
+cout << "Enter initial position of the disk arm: ";
+cin >> start;
+// Call FCFS function
+FCFS(requests, n, start);
+return 0;
+}
