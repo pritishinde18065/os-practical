@@ -1,0 +1,47 @@
+#include <iostream>
+#include <cmath> // for abs() function
+using namespace std;
+void SSTF(int requests[], int n, int start) {
+int total_seek_time = 0;
+int current_position = start;
+bool visited[n] = {false}; // To track visited requests
+cout << "Initial disk head position: " << start << endl;
+// Process each request
+for (int i = 0; i < n; i++) {
+int min_seek_time = 99999; // Set a large value initially
+int idx = -1;
+// Find the closest unvisited request
+for (int j = 0; j < n; j++) {
+if (!visited[j] && abs(requests[j] - current_position) < min_seek_time) {
+min_seek_time = abs(requests[j] - current_position);
+idx = j;
+}
+}
+// Mark the request as visited
+visited[idx] = true;
+// Move the head and accumulate seek time
+cout << "Move head from " << current_position << " to " << requests[idx]
+<< " (Seek time: " << min_seek_time << ")" << endl;
+total_seek_time += min_seek_time;
+current_position = requests[idx]; // Update head position
+}
+// Output total and average seek time
+cout << "Total seek time: " << total_seek_time << endl;
+cout << "Average seek time: " << (oat)total_seek_time / n << endl;
+}
+int main() {
+int n, start;
+// Input number of requests and the initial position of the disk arm
+cout << "Enter number of disk requests: ";
+cin >> n;
+int requests[n];
+cout << "Enter disk requests: ";
+for (int i = 0; i < n; i++) {
+cin >> requests[i];
+}
+cout << "Enter initial position of the disk arm: ";
+cin >> start;
+// Call SSTF function
+SSTF(requests, n, start);
+return 0;
+}
