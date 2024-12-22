@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -64,9 +65,9 @@ totalWaitingTime += waitingTime[i];
 totalTurnaroundTime += turnaroundTime[i];
 }
 // Calculate and display averages
-oat avgWaitTime = (oat)totalWaitingTime / n;
-oat avgTurnaroundTime = (oat)totalTurnaroundTime / n;
-cout << "\nAverage Waiting Time: " << xed << setprecision(2) << avgWaitTime << "\n";
-cout << "Average Turnaround Time: " << xed << setprecision(2) << avgTurnaroundTime << "\n";
+float avgWaitTime = (float)totalWaitingTime / n;
+float avgTurnaroundTime = (float)totalTurnaroundTime / n;
+cout << "\nAverage Waiting Time: " << fixed << setprecision(2) << avgWaitTime << "\n";
+cout << "Average Turnaround Time: " <<fixed << setprecision(2) << avgTurnaroundTime << "\n";
 return 0;
 }
