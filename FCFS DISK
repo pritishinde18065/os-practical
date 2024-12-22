@@ -16,7 +16,7 @@ current_position = requests[i]; // Update current position
 }
 // Print the total seek time and average seek time
 cout << "Total seek time: " << total_seek_time << endl;
-cout << "Average seek time: " << (oat)total_seek_time / n << endl;
+cout << "Average seek time: " << (float)total_seek_time / n << endl;
 }
 int main() {
 int n, start;
