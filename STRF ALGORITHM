@@ -1,0 +1,80 @@
+#include <iostream>
+#include <climits> // For INT_MAX
+using namespace std;
+int main() {
+int n;
+// Step 1: Input the number of processes
+cout << "Enter the number of processes: ";
+cin >> n;
+int arrivalTime[n], burstTime[n], remainingTime[n], completionTime[n], waitingTime[n],
+turnaroundTime[n];
+int process[n];
+// Step 2: Input the arrival times and burst times of the processes
+for (int i = 0; i < n; i++) {
+process[i] = i + 1; // Process ID (P1, P2, ...)
+cout << "Enter arrival time and burst time for Process P" << process[i] << ":\n";
+cout << "Arrival Time: ";
+cin >> arrivalTime[i];
+cout << "Burst Time: ";
+cin >> burstTime[i];
+remainingTime[i] = burstTime[i]; // Initialize remaining time as burst time
+}
+// Step 3: Sort the processes by arrival time
+for (int i = 0; i < n - 1; i++) {
+for (int j = i + 1; j < n; j++) {
+if (arrivalTime[i] > arrivalTime[j]) {
+swap(arrivalTime[i], arrivalTime[j]);
+swap(burstTime[i], burstTime[j]);
+swap(process[i], process[j]);
+}
+}
+}
+int completed = 0, time = 0;
+bool isCompleted[n] = {false}; // Track whether a process is completed or not
+cout << "\nGantt Chart:\n";
+// Step 4: SRTF Scheduling Algorithm
+while (completed < n) {
+int minRemainingTime = INT_MAX;
+int processIndex = -1;
+// Find the process with the shortest remaining time that is ready to execute
+for (int i = 0; i < n; i++) {
+if (!isCompleted[i] && arrivalTime[i] <= time && remainingTime[i] < minRemainingTime) {
+minRemainingTime = remainingTime[i];
+processIndex = i;
+}
+}
+if (processIndex != -1) {
+// Execute the process for 1 unit of time
+cout << "P" << process[processIndex] << " ";
+remainingTime[processIndex]--; // Reduce the remaining time for that process
+if (remainingTime[processIndex] == 0) {
+// Process is complete, calculate completion time
+completed++;
+isCompleted[processIndex] = true;
+completionTime[processIndex] = time + 1; // Completion time = current time + 1
+}
+}
+time++; // Move to the next time unit
+}
+// Step 5: Calculate waiting time and turnaround time
+int totalWaitingTime = 0, totalTurnaroundTime = 0;
+for (int i = 0; i < n; i++) {
+turnaroundTime[i] = completionTime[i] - arrivalTime[i]; // Turnaround time = Completion
+time - Arrival time
+waitingTime[i] = turnaroundTime[i] - burstTime[i]; // Waiting time = Turnaround time - Burst
+time
+totalWaitingTime += waitingTime[i];
+totalTurnaroundTime += turnaroundTime[i];
+}
+// Step 6: Output the process details
+cout << "\nProcess Arrival Burst Completion Waiting Turnaround\n";
+for (int i = 0; i < n; i++) {
+cout << "P" << process[i] << "\t" << arrivalTime[i] << "\t"
+<< burstTime[i] << "\t" << completionTime[i] << "\t\t"
+<< waitingTime[i] << "\t" << turnaroundTime[i] << "\n";
+}
+// Step 7: Output average waiting time and average turnaround time
+cout << "\nAverage Waiting Time: " << (float)totalWaitingTime / n;
+cout << "\nAverage Turnaround Time: " << (float)totalTurnaroundTime / n << endl;
+return 0;
+}
