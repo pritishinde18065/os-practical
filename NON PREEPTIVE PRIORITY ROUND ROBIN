@@ -1,100 +1,129 @@
 #include <iostream>
+#include <vector>
+#include <algorithm>
 #include <iomanip>
 using namespace std;
-// Function to calculate waiting and turnaround times for Round-Robin scheduling
-void calculateRoundRobinTimes(int processes[], int n, int arrivalTime[], int burstTime[], int
-timeQuantum) {
-int remainingBurstTime[n];
-int waitingTime[n], turnaroundTime[n], completionTime[n];
-int totalWaitingTime = 0, totalTurnaroundTime = 0;
-// Copy burst times to remaining burst time
-for (int i = 0; i < n; i++) {
-remainingBurstTime[i] = burstTime[i];
+
+struct Process {
+    int pid, arrival_time, burst_time, remaining_time, priority;
+    int waiting_time, turnaround_time;
+};
+
+bool compareArrivalTime(Process &p1, Process &p2) {
+    return p1.arrival_time < p2.arrival_time;
 }
-int currentTime = 0, completed = 0;
-while (completed < n) {
-bool doneInThisCycle = false;
-for (int i = 0; i < n; i++) {
-if (remainingBurstTime[i] > 0 && arrivalTime[i] <= currentTime) {
-doneInThisCycle = true;
-int execTime = (remainingBurstTime[i] > timeQuantum) ? timeQuantum :
-remainingBurstTime[i];
-remainingBurstTime[i] -= execTime;
-currentTime += execTime;
-// If process is nished
-if (remainingBurstTime[i] == 0) {
-completed++;
-completionTime[i] = currentTime;
-turnaroundTime[i] = completionTime[i] - arrivalTime[i];
-waitingTime[i] = turnaroundTime[i] - burstTime[i];
+
+bool comparePriority(Process &p1, Process &p2) {
+    return p1.priority > p2.priority; // Higher priority first
 }
-}
-}
-// If no process could execute in this cycle, increment time
-if (!doneInThisCycle) {
-currentTime++;
-}
-}
-// Print process details and calculate averages
-cout << "\nProcess\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n";
-for (int i = 0; i < n; i++) {
-cout << "P" << processes[i] << "\t"
-<< arrivalTime[i] << "\t\t"
-<< burstTime[i] << "\t\t"
-<< waitingTime[i] << "\t\t"
-<< turnaroundTime[i] << "\n";
-totalWaitingTime += waitingTime[i];
-totalTurnaroundTime += turnaroundTime[i];
-}
-// Calculate and display averages
-oat avgWaitTime = (oat)totalWaitingTime / n;
-oat avgTurnaroundTime = (oat)totalTurnaroundTime / n;
-cout << "\nAverage Waiting Time: " << xed << setprecision(2) << avgWaitTime << "\n";
-cout << "Average Turnaround Time: " << xed << setprecision(2) << avgTurnaroundTime << "\n";
-}
-// Function to display Gantt chart for the Round-Robin scheduling
-void displayRoundRobinGanttChart(int processes[], int n, int arrivalTime[], int burstTime[], int
-timeQuantum) {
-int remainingBurstTime[n];
-// Copy burst times to remaining burst time
-for (int i = 0; i < n; i++) {
-remainingBurstTime[i] = burstTime[i];
-}
-int currentTime = 0;
-cout << "\nGantt Chart:\n";
-while (true) {
-bool done = true;
-for (int i = 0; i < n; i++) {
-if (remainingBurstTime[i] > 0 && arrivalTime[i] <= currentTime) {
-done = false;
-int execTime = (remainingBurstTime[i] > timeQuantum) ? timeQuantum :
-remainingBurstTime[i];
-remainingBurstTime[i] -= execTime;
-currentTime += execTime;
-cout << "| P" << processes[i] << " ";
-}
-}
-if (done) break; // If all processes are completed, exit the loop
-}
-cout << "|\n";
-}
+
 int main() {
-int n, timeQuantum;
-// Input the number of processes
-cout << "Enter the number of processes: ";
-cin >> n;
-int processes[n], arrivalTime[n], burstTime[n], priority[n];
-// Input arrival time, burst time, and priority for each process
-cout << "Enter arrival time, burst time, and priority for each process in one line (arrival time,
-burst time, priority):\n";
-for (int i = 0; i < n; i++) {
-processes[i] = i + 1; // Process ID (P1, P2, ...)
-cin >> arrivalTime[i] >> burstTime[i] >> priority[i];
+    int n, quantum;
+    // Input number of processes and time quantum
+    cout << "Enter the number of processes: ";
+    cin >> n;
+    cout << "Enter the time quantum: ";
+    cin >> quantum;
+    
+    vector<Process> processes(n);
+
+    // Input process details
+    for (int i = 0; i < n; i++) {
+        processes[i].pid = i + 1;
+        cout << "Enter arrival time for Process " << i + 1 << ": ";
+        cin >> processes[i].arrival_time;
+        cout << "Enter burst time for Process " << i + 1 << ": ";
+        cin >> processes[i].burst_time;
+        cout << "Enter priority for Process " << i + 1 << " (higher number indicates higher priority): ";
+        cin >> processes[i].priority;
+        processes[i].remaining_time = processes[i].burst_time;
+        processes[i].waiting_time = 0;
+        processes[i].turnaround_time = 0;
+    }
+
+    // Sort processes based on arrival time and priority
+    sort(processes.begin(), processes.end(), compareArrivalTime);
+
+    int total_time = 0;
+    int completed = 0;
+    vector<int> gantt_chart;
+
+    // Non-preemptive Priority Round Robin scheduling
+    while (completed < n) {
+        bool all_done = true;
+        int highest_priority_index = -1;
+        int highest_priority = -1;
+
+        // Find the process with the highest priority that is ready to execute
+        for (int i = 0; i < n; i++) {
+            if (processes[i].remaining_time > 0 && processes[i].arrival_time <= total_time) {
+                all_done = false;
+                if (processes[i].priority > highest_priority) {
+                    highest_priority = processes[i].priority;
+                    highest_priority_index = i;
+                }
+            }
+        }
+
+        if (!all_done) {
+            // If a process is selected, simulate its execution
+            int time_slice = min(quantum, processes[highest_priority_index].remaining_time);
+
+            // Store the process in the gantt chart for each time slice
+            for (int i = 0; i < time_slice; i++) {
+                gantt_chart.push_back(processes[highest_priority_index].pid);
+            }
+
+            // Update process details
+            processes[highest_priority_index].remaining_time -= time_slice;
+            total_time += time_slice;
+
+            // If the process is completed
+            if (processes[highest_priority_index].remaining_time == 0) {
+                processes[highest_priority_index].turnaround_time = total_time - processes[highest_priority_index].arrival_time;
+                processes[highest_priority_index].waiting_time = processes[highest_priority_index].turnaround_time - processes[highest_priority_index].burst_time;
+                completed++;
+            }
+        }
+
+        if (all_done) {
+            break;
+        }
+    }
+
+    // Display the Gantt Chart
+    cout << "\nGantt Chart:\n";
+    for (int i = 0; i < gantt_chart.size(); i++) {
+        cout << "| P" << gantt_chart[i] << " ";
+    }
+    cout << "|";
+    cout << "\n";
+
+    // Display the process details in a table-like format
+    cout << "\nProcess Arrival Time Burst Time Priority Waiting Time Turnaround Time\n";
+    for (int i = 0; i < n; i++) {
+        cout << "P" << processes[i].pid << "\t"
+            << processes[i].arrival_time << "\t\t"
+            << processes[i].burst_time << "\t\t"
+            << processes[i].priority << "\t\t"
+            << processes[i].waiting_time << "\t\t\t"
+            << processes[i].turnaround_time << endl;
+    }
+
+    // Calculate and display averages
+    int total_waiting_time = 0, total_turnaround_time = 0;
+    for (int i = 0; i < n; i++) {
+        total_waiting_time += processes[i].waiting_time;
+        total_turnaround_time += processes[i].turnaround_time;
+    }
+
+    // Output the averages using fixed and setprecision for better formatting
+    float avg_waiting_time = (float)total_waiting_time / n;
+    float avg_turnaround_time = (float)total_turnaround_time / n;
+
+    cout << "\nAverage Waiting Time: " << fixed << setprecision(2) << avg_waiting_time << endl;
+    cout << "Average Turnaround Time: " << fixed << setprecision(2) << avg_turnaround_time << endl;
+
+    return 0;
 }
-// Input the time quantum
-cout << "Enter the time quantum for Round Robin scheduling: ";
-cin >> timeQuantum;
-// Display Gantt Chart for Round-Robin Scheduling
-displayRoundRobinGanttChart(processes, n, arrivalTime, burstTime, timeQuantum);
-calculateRoundRobinTimes(processes, n, arrivalTime, burstTime, timeQuantum);
-return 0; }
+
