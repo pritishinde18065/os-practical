@@ -1,0 +1,89 @@
+#include <iostream>
+using namespace std;
+int optimal(int pages[], int n, int capacity) {
+int frames[capacity]; // Array to represent the frames
+int page_faults = 0;
+// Initialize frames to -1 (empty frames)
+for (int i = 0; i < capacity; i++) {
+frames[i] = -1;
+}
+// Process each page in the sequence
+for (int i = 0; i < n; i++) {
+int current_page = pages[i];
+bool page_found = false;
+// Check if the page is already in the frames
+for (int j = 0; j < capacity; j++) {
+if (frames[j] == current_page) {
+page_found = true;
+break; // No page fault if the page is already in frames
+}
+}
+// If the page is not in the frames, handle the page fault
+if (!page_found) {
+page_faults++; // Increment page fault count
+// If there is an empty frame, place the page in it
+bool placed = false;
+for (int j = 0; j < capacity; j++) {
+if (frames[j] == -1) {
+frames[j] = current_page;
+placed = true;
+break;
+}
+}
+// If no empty frame, replace the page with the one that won't be used for the longest time
+if (!placed) {
+int farthest = -1, replace_index = -1;
+for (int j = 0; j < capacity; j++) {
+int next_use = -1;
+// Find the next use of the page in the sequence
+for (int k = i + 1; k < n; k++) {
+if (frames[j] == pages[k]) {
+next_use = k;
+break;
+}
+}
+// If the page will never be used again, replace it
+if (next_use == -1) {
+replace_index = j;
+break;
+}
+// Find the page that is used farthest in the future
+if (next_use > farthest) {
+farthest = next_use;
+replace_index = j;
+}
+}
+// Replace the page that will be used farthest in the future
+frames[replace_index] = current_page;
+}
+}
+// Print the current state of the frames
+cout << "Page " << current_page << ": ";
+for (int j = 0; j < capacity; j++) {
+if (frames[j] != -1) {
+cout << frames[j] << " ";
+}
+}
+cout << endl;
+}
+// Return the total number of page faults
+return page_faults;
+}
+int main() {
+int n, capacity;
+// Input the number of pages
+cout << "Enter the number of pages: ";
+cin >> n;
+int pages[n];
+// Input the page sequence
+cout << "Enter the page sequence: ";
+for (int i = 0; i < n; i++) {
+cin >> pages[i];
+}
+// Input the number of frames
+cout << "Enter the number of frames: ";
+cin >> capacity;
+// Call optimal function and print total page faults
+int total_page_faults = optimal(pages, n, capacity);
+cout << "\nTotal Page Faults: " << total_page_faults << endl;
+return 0; }
