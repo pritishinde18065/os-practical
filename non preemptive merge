@@ -1,0 +1,114 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define totalProcess 5
+// Structure to hold the process details
+struct Process {
+int id;
+int arrivalTime;
+int burstTime;
+int completionTime;
+int priority;
+int waitingTime = 0;
+int turnaroundTime = 0;
+int remainingTime;
+};
+// Array of processes
+Process proc[50];
+// Comparison function to sort processes by arrival time, and then by priority if arrival times are the same
+bool compare(Process a, Process b) {
+if (a.arrivalTime == b.arrivalTime) {
+return a.priority < b.priority; // Lower priority number means higher priority
+}
+return a.arrivalTime < b.arrivalTime;
+}
+// Function to calculate waiting time
+void calculateWaitingTime(int waitingTime[]) {
+int service[50];
+service[0] = proc[0].arrivalTime;
+waitingTime[0] = 0;
+for (int i = 1; i < totalProcess; i++) {
+service[i] = proc[i - 1].burstTime + service[i - 1];
+waitingTime[i] = service[i] - proc[i].arrivalTime;
+if (waitingTime[i] < 0) {
+waitingTime[i] = 0; // No negative waiting time
+}
+}
+}
+// Function to calculate turnaround time
+void calculateTurnaroundTime(int turnaroundTime[], int waitingTime[]) {
+for (int i = 0; i < totalProcess; i++) {
+turnaroundTime[i] = proc[i].burstTime + waitingTime[i];
+}
+}
+// Function to calculate and display the process details, including waiting and turnaround times
+void calculateMetrics() {
+int waitingTime[50], turnaroundTime[50];
+double averageWaitTime = 0, averageTurnaroundTime = 0;
+calculateWaitingTime(waitingTime);
+calculateTurnaroundTime(turnaroundTime, waitingTime);
+int startTime[50], completionTime[50];
+startTime[0] = proc[0].arrivalTime;
+completionTime[0] = startTime[0] + turnaroundTime[0];
+// Calculating start time and completion time for each process
+for (int i = 1; i < totalProcess; i++) {
+startTime[i] = completionTime[i - 1];
+completionTime[i] = startTime[i] + turnaroundTime[i] - waitingTime[i];
+}
+cout << "\n---------------------------------------------------------------\n";
+cout<<"Process Table\n";
+cout<< "---------------------------------------------------------------\n";
+// Display process details in tabular format
+cout << "Process_no\tStart_time\tComplete_time\tTurn_Around_Time\tWaiting_Time\n";
+for (int i = 0; i < totalProcess; i++) {
+averageWaitTime += waitingTime[i];
+averageTurnaroundTime += turnaroundTime[i];
+cout << proc[i].id << "\t\t"
+<< startTime[i] << "\t\t"
+<< completionTime[i] << "\t\t"
+<< turnaroundTime[i] << "\t\t\t"
+<< waitingTime[i] << endl;
+}
+// Display the average waiting time and average turnaround time
+cout << "\nAverage waiting time: " << averageWaitTime / (float)totalProcess << endl;
+cout << "Average turnaround time: " << averageTurnaroundTime / (float)totalProcess << endl;
+cout << "\n---------------------------------------------------------------\n";
+cout << "Gantt Chart:\n";
+cout << "---------------------------------------------------------------\n";
+// Print the process IDs in the Gantt Chart row
+for (int i = 0; i < totalProcess; i++) {
+cout << "| P" << proc[i].id << " ";
+}
+cout << "|\n";
+// Print the timeline of the Gantt Chart
+// for (int i = 0; i < totalProcess; i++) {
+// for (int j = 0; j < (proc[i].burstTime); j++) {
+// //cout << "----";
+// }
+// }
+// cout << "\n";
+for (int i = 0; i < totalProcess; i++) {
+cout << startTime[i] << " ";
+}
+cout << completionTime[totalProcess - 1] << endl;
+}
+int main() {
+// Taking input for the process details (arrival time, burst time, and priority)
+for (int i = 0; i < totalProcess; i++) {
+proc[i].id = i + 1;
+cout << "Enter arrival time for process P" << i + 1 << ": ";
+cin >> proc[i].arrivalTime;
+}
+for (int i = 0; i < totalProcess; i++) {
+cout << "Enter burst time for process P" << i + 1 << ": ";
+cin >> proc[i].burstTime;
+}
+for (int i = 0; i < totalProcess; i++) {
+cout << "Enter priority for process P" << i + 1 << ": ";
+cin >> proc[i].priority;
+}
+// Sort processes by arrival time and then by priority
+sort(proc, proc + totalProcess, compare);
+// Calculate and display the metrics
+calculateMetrics();
+return 0;
+}
