@@ -1,0 +1,160 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <iomanip>
+#include <algorithm>
+#include <climits>
+using namespace std;
+struct Process
+{
+int id;
+int burstTime;
+int arrivalTime;
+int priority;
+int remainingTime;
+int waitingTime;
+int turnaroundTime;
+int completionTime;
+};
+void calculateTimes(vector<Process> &processes, int timeQuantum = -1);
+void displayResults(const vector<Process> &processes);
+void displayGanttChart(const vector<pair<int, int>> &ganttChart);
+int main(){
+int n, timeQuantum = -1;
+cout << "Enter the number of processes: ";
+cin >> n;
+vector<Process> processes(n);
+bool hasSamePriority = false;
+cout << "Enter time quantum for Round-Robin scheduling of same-priority processes: ";
+cin >> timeQuantum;
+cout << "Enter Arrival Time for each process:\n";
+for (int i = 0; i < n; i++) {
+processes[i].id = i + 1;
+cout << "Arrival Time for process P" << i + 1 << ": ";
+cin >> processes[i].arrivalTime;
+}
+cout << "Enter Burst Time for each process:\n";
+for (int i = 0; i < n; i++) {
+cout << "Burst Time for process P" << i + 1 << ": ";
+cin >> processes[i].burstTime;
+processes[i].remainingTime = processes[i].burstTime; // Initialize remaining burst time
+}
+cout << "Enter Priority for each process (lower number = higher priority):\n";
+for (int i = 0; i < n; i++) {
+cout << "Priority for process P" << i + 1 << ": ";
+cin >> processes[i].priority;
+}
+for (int i = 0; i < n; i++) {
+processes[i].waitingTime = 0;
+processes[i].turnaroundTime = 0;
+processes[i].completionTime = 0;
+}
+// if (hasSamePriority) {
+// cout << "Enter time quantum for Round-Robin scheduling of same-priority processes: ";
+// cin >> timeQuantum;
+// }
+calculateTimes(processes, timeQuantum);
+displayResults(processes);
+return 0;
+}
+void calculateTimes(vector<Process> &processes, int timeQuantum){
+int n = processes.size();
+int completed = 0;
+int currentTime = 0;
+vector<pair<int, int>> ganttChart;
+sort(processes.begin(), processes.end(), [](Process a, Process b)
+{ return a.arrivalTime < b.arrivalTime; });
+queue<int> rrQueue; // Queue for Round-Robin scheduling for same-priority processes
+vector<bool> inRRQueue(n, false); // Track if a process is already in the Round-Robin queue
+while (completed < n){
+int idx = -1;
+int minPriority = INT_MAX;
+for (int i = 0; i < n; i++){
+if (processes[i].arrivalTime <= currentTime && processes[i].remainingTime > 0){
+if (processes[i].priority < minPriority){
+minPriority = processes[i].priority;
+idx = i;
+}
+else if (processes[i].priority == minPriority && timeQuantum > 0){
+// When there is a tie in priority and time quantum is given, add to Round-Robin queue
+idx = -1; // Indicate that Round-Robin should be used
+if (!inRRQueue[i]){
+rrQueue.push(i);
+inRRQueue[i] = true;
+}
+}
+}
+}
+if (idx == -1 && !rrQueue.empty()){
+int processIdx = rrQueue.front();
+rrQueue.pop();
+inRRQueue[processIdx] = false;
+int execTime = min(timeQuantum, processes[processIdx].remainingTime);
+ganttChart.push_back({processes[processIdx].id, currentTime});
+currentTime += execTime;
+processes[processIdx].remainingTime -= execTime;
+if (processes[processIdx].remainingTime == 0){
+processes[processIdx].completionTime = currentTime;
+processes[processIdx].turnaroundTime = currentTime - processes[processIdx].arrivalTime;
+processes[processIdx].waitingTime = processes[processIdx].turnaroundTime - processes[processIdx].burstTime;
+completed++;
+}
+else{
+rrQueue.push(processIdx); // Re-enqueue if not finished
+inRRQueue[processIdx] = true;
+}
+}
+else if (idx != -1){
+ganttChart.push_back({processes[idx].id, currentTime});
+currentTime++;
+processes[idx].remainingTime--;
+if (processes[idx].remainingTime == 0){
+processes[idx].completionTime = currentTime;
+processes[idx].turnaroundTime = currentTime - processes[idx].arrivalTime;
+processes[idx].waitingTime = processes[idx].turnaroundTime - processes[idx].burstTime;
+completed++;
+}
+}
+else{
+ganttChart.push_back({-1, currentTime});
+currentTime++;
+}
+}
+ganttChart.push_back({-1, currentTime}); // End of Gantt chart
+displayGanttChart(ganttChart);
+}
+void displayGanttChart(const vector<pair<int, int>> &ganttChart){
+cout << "\nGantt Chart:\n";
+int startTime = ganttChart[0].second;
+int currentProcess = ganttChart[0].first;
+for (size_t i = 1; i < ganttChart.size(); i++){
+if (ganttChart[i].first != currentProcess || ganttChart[i].first == -1){
+cout << "| P" << currentProcess << " ";
+currentProcess = ganttChart[i].first;
+}
+}
+cout << "|\n";
+// Reset for start and end time sequence (lower row)
+startTime = ganttChart[0].second;
+currentProcess = ganttChart[0].first;
+// Print start times and end time in a single row
+cout << startTime;
+for (size_t i = 1; i < ganttChart.size(); i++){
+if (ganttChart[i].first != currentProcess || ganttChart[i].first == -1){
+cout << setw(5) << ganttChart[i].second;
+currentProcess = ganttChart[i].first;
+}
+}
+cout << "\n";
+}
+void displayResults(const vector<Process> &processes){
+int totalWaitingTime = 0, totalTurnaroundTime = 0;
+cout << "\nProcesses Burst Time Arrival Time Priority Waiting Time Turnaround Time\n";
+for (const auto &p : processes){
+cout << " " << p.id << "\t\t" << p.burstTime << "\t\t" << p.arrivalTime << "\t\t"
+<< p.priority << "\t\t" << p.waitingTime << "\t\t" << p.turnaroundTime << endl;
+totalWaitingTime += p.waitingTime;
+totalTurnaroundTime += p.turnaroundTime;
+}
+cout << "\nAverage waiting time = " << (float)totalWaitingTime / processes.size() << endl;
+cout << "Average turnaround time = " << (float)totalTurnaroundTime / processes.size() << endl;}
